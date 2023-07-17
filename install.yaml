@@ -1,1 +1,2 @@
 - import_playbook: install-dependencies/install.yaml
+- import_playbook: install-docker/install.yaml

@@ -1,0 +1,78 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+
+    - name: Remove old docker packages
+      package:
+        state: absent
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Get distribution name
+      shell: 'echo $(lsb_release -cs)'
+      register: dist
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: 'deb https://download.docker.com/linux/ubuntu {{ dist.stdout }} stable'
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Run dpkg configure
+      shell: 'dpkg --configure -a'
+
+    - name: Install docker packages
+      package:
+        state: present
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    - name: Reset containerd configuration
+      ansible.builtin.file:
+        state: absent
+        path: /etc/containerd/config.toml
+
+    - name: Restart containerd
+      service: name=containerd state=restarted
+
+    - name: Copy docker daemon.json
+      copy:
+        src: '{{ playbook_dir }}/config/daemon.json'
+        dest: /etc/docker/daemon.json
+
+    - name: Check whether data volume exists
+      stat:
+        path: /data
+      register: mount_volume
+
+    - name: Copy docker daemon_data.json (if data volume)
+      copy:
+        src: '{{ playbook_dir }}/config/daemon_data.json'
+        dest: /tmp/daemon_data.json
+      when: mount_volume.stat.exists == True
+
+    - name: Merge docker daemon_data.json (if data volume)
+      shell: |
+        cp /etc/docker/daemon.json /etc/docker/daemon.json.bkp
+        jq -s '.[0] * .[1]' /tmp/daemon_data.json /etc/docker/daemon.json.bkp  > /etc/docker/daemon.json
+      when: mount_volume.stat.exists == True
+
+    - name: Restart docker service
+      service:
+        name: docker
+        state: restarted
