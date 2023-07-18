@@ -14,9 +14,11 @@
           - runc
 
     - name: Add Docker GPG key
-      apt_key:
+      get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+        dest: /etc/apt/trusted.gpg.d/docker.asc
+        mode: '0644'
+        force: true
 
     - name: Get distribution name
       shell: 'echo $(lsb_release -cs)'
