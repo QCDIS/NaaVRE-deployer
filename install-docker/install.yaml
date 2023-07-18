@@ -43,36 +43,26 @@
           - containerd.io
 
     - name: Reset containerd configuration
-      ansible.builtin.file:
+      file:
         state: absent
         path: /etc/containerd/config.toml
 
-    - name: Restart containerd
-      service: name=containerd state=restarted
+    - name: Create data directory
+      file:
+        state: directory
+        path: /data/docker
 
     - name: Copy docker daemon.json
       copy:
         src: '{{ playbook_dir }}/config/daemon.json'
         dest: /etc/docker/daemon.json
 
-    - name: Check whether data volume exists
-      stat:
-        path: /data
-      register: mount_volume
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
 
-    - name: Copy docker daemon_data.json (if data volume)
-      copy:
-        src: '{{ playbook_dir }}/config/daemon_data.json'
-        dest: /tmp/daemon_data.json
-      when: mount_volume.stat.exists == True
-
-    - name: Merge docker daemon_data.json (if data volume)
-      shell: |
-        cp /etc/docker/daemon.json /etc/docker/daemon.json.bkp
-        jq -s '.[0] * .[1]' /tmp/daemon_data.json /etc/docker/daemon.json.bkp  > /etc/docker/daemon.json
-      when: mount_volume.stat.exists == True
-
-    - name: Restart docker service
+    - name: Restart docker
       service:
         name: docker
         state: restarted
