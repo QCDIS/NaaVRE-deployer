@@ -18,7 +18,6 @@
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/trusted.gpg.d/docker.asc
         mode: '0644'
-        force: true
 
     - name: Get distribution name
       shell: 'echo $(lsb_release -cs)'
@@ -56,7 +55,7 @@
 
     - name: Copy docker daemon.json
       copy:
-        src: '{{ playbook_dir }}/config/daemon.json'
+        src: '{{ playbook_dir }}/config/docker_daemon.json'
         dest: /etc/docker/daemon.json
 
     - name: Restart containerd

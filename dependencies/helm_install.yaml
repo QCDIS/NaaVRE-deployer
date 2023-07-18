@@ -1,0 +1,28 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+
+    - name: Add Helm GPG key
+      get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /etc/apt/trusted.gpg.d/helm.asc
+        mode: '0644'
+
+    - name: Get arch
+      shell: dpkg --print-architecture
+      register: arch
+
+    - name: Add Helm repository
+      apt_repository:
+        repo: 'deb [arch={{ arch.stdout }}] https://baltocdn.com/helm/stable/debian/ all main'
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Helm
+      apt:
+        pkg:
+          - helm

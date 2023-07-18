@@ -1,29 +1,4 @@
-- hosts: all
-  become: yes
-  gather_facts: no
-  tasks:
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-
-    - name: Install apt dependencies
-      package:
-        state: present
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - firewalld
-          - gnupg2
-          - jq
-          - python3
-          - python3-pip
-          - software-properties-common
-          - virtualenv
-
-    - name: Install pip dependencies
-      pip:
-        name:
-          - openshift==0.13.1
-          - kubernetes==26.1.0
+- import_playbook: utils_install.yaml
+- import_playbook: docker_install.yaml
+- import_playbook: kube_install.yaml
+- import_playbook: helm_install.yaml
