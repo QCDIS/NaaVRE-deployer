@@ -2,4 +2,4 @@
 - import_playbook: kube_install.yaml
 - import_playbook: setup_master.yaml
 - import_playbook: cni_install.yaml
-#- import_playbook: setup_workers.yaml
+- import_playbook: setup_workers.yaml
