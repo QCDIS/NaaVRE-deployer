@@ -1,0 +1,54 @@
+---
+- hosts: master
+  gather_facts: no
+  vars:
+    k8s_state: present
+  tasks:
+
+#    - name: Create namespace for dashboard
+#      k8s:
+#        kind: Namespace
+#        name: kubernetes-dashboard
+
+    - name: Copy dashboard configuration
+      copy:
+        src: '{{ playbook_dir }}/config/dashboard.yaml'
+        dest: /tmp/k8s_dashboard.yaml
+
+    - name: Create dashboard
+      k8s:
+        state: '{{ k8s_state }}'
+        src: /tmp/k8s_dashboard.yaml
+
+    - name: Create ServiceAccount
+      k8s:
+        namespace: kubernetes-dashboard
+        kind: ServiceAccount
+        name: admin-user
+
+    - name: Create ClusterRoleBinding
+      k8s:
+        kind: ClusterRoleBinding
+        name: admin-user
+        definition:
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+            - apiGroup: rbac.authorization.k8s.io
+              kind: User
+              name: admin-user
+            - apiGroup: rbac.authorization.k8s.io
+              kind: Group
+              name: system:serviceaccounts
+
+    - name: Get dashboard token
+      shell: kubectl -n kubernetes-dashboard create token admin-user --duration 8760h -o yaml | tee dashboard_token.yaml
+      register: k8s_dashboard_token
+
+    - shell: chmod 600 dashboard_token.yaml
+
+    - name: Print dashboard token
+      debug:
+        var: k8s_dashboard_token.stdout

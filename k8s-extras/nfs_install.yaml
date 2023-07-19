@@ -1,0 +1,71 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Install system NFS client
+      package:
+        state: present
+        name: nfs-common
+      become: yes
+
+    - name: Get private IP
+      shell: 'ip addr | grep -Po "(?<=inet )((\d+\.){3}\d+)(?=/\d+ .*{{ internal_network_interface }})"'
+      register: private_ip
+
+    - name: Store private IP
+      set_fact:
+        private_ip: "{{ private_ip.stdout }}"
+
+- hosts: master
+  gather_facts: false
+  tasks:
+
+    - name: Create NFS data directory
+      file:
+        path: /data/nfs-data/
+        state: directory
+      become: yes
+
+    - name: Reset NFS exports
+      file:
+        path: /etc/exports
+        state: absent
+      become: yes
+
+    - name: Configure NFS exports
+      shell: |
+        echo "# {{ hostvars[item].inventory_hostname }}" >> /etc/exports
+        echo "/data/nfs-data {{ hostvars[item].private_ip }}(rw,sync,no_root_squash,no_subtree_check)" >> /etc/exports
+      with_items: '{{ groups["all"] }}'
+      become: yes
+
+    - name: Install NFS server
+      package:
+        state: present
+        name: nfs-kernel-server
+      become: yes
+
+    - name: Install firewall rules
+      firewalld:
+        state: enabled
+        port: '{{ item }}'
+        permanent: yes
+        immediate: yes
+      with_items:
+        - '2049/tcp'
+      become: yes
+
+    - name: Install NFS provisioner with Helm
+      kubernetes.core.helm:
+        namespace: nfs-provisioner
+        create_namespace: true
+        chart_repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+        chart_ref: nfs-subdir-external-provisioner
+        name: nfs-provisioner
+        values:
+          nfs:
+            server: '{{ hostvars[groups["master"][0]].private_ip }}'
+            path: /data/nfs-data
+          storageClass:
+            name: nfs
+            defaultClass: true

@@ -1,0 +1,3 @@
+- import_playbook: nfs_install.yaml
+- import_playbook: dashboard_install.yaml
+- import_playbook: ingress_install.yaml
