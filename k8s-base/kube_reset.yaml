@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Reset kubeadm
+      shell: kubeadm reset -f
+      become: yes
+
+    - name: Remove kube config
+      file:
+        state: absent
+        path: '/home/{{ ansible_ssh_user }}/.kube/config'

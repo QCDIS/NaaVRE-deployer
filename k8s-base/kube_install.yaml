@@ -1,0 +1,28 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Disable swap
+      shell: swapoff -a
+      become: yes
+
+    - name: Create directory .kube
+      file:
+        path: '/home/{{ ansible_ssh_user }}/.kube'
+        state: directory
+        recurse: yes
+
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: true
+      become: yes
+
+    - name: Restart restart services
+      service:
+        name: '{{ item }}'
+        state: restarted
+      with_items:
+        - docker
+        - containerd
+        - kubelet
+      become: yes

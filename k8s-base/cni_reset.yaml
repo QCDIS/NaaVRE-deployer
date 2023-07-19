@@ -1,0 +1,32 @@
+- hosts: master
+  gather_facts: no
+  tasks:
+
+    - name: Remove Flannel with Helm
+      kubernetes.core.helm:
+        namespace: kube-flannel
+        name: flannel
+        state: absent
+      ignore_errors: yes
+
+    - name: Delete Flannel namespace
+      k8s:
+        kind: Namespace
+        name: kube-flannel
+        state: absent
+        wait: true
+      ignore_errors: yes
+
+    - name: Remove Flannel config
+      file:
+        path: /etc/cni/net.d/10-flannel.conflist
+        state: absent
+      become: yes
+
+    - name: Clean CNI interfaces
+      shell: ip link delete {{ item }}
+      with_items:
+        - 'flannel.1'
+        - 'cni0'
+      become: yes
+      ignore_errors: yes

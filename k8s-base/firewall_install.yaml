@@ -1,0 +1,49 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Restart firewalld
+      service:
+        name: firewalld
+        state: restarted
+      become: yes
+
+    - name: Assign network interface to firewall zone
+      firewalld:
+        zone: public
+        interface: '{{ internal_network_interface }}'
+        state: enabled
+        permanent: true
+        immediate: yes
+      become: yes
+
+    - name: Install firewall rules
+      firewalld:
+        state: enabled
+        port: '{{ item }}'
+        permanent: yes
+        immediate: yes
+      with_items:
+        #- '8080/tcp'
+        #- '10248-10255/tcp'
+        - '8472/udp'  # VXLAN backend for Flannel
+        - '10250/tcp'  # Kubelet API
+        - '30000-32767/tcp'  # NodePort Services
+      become: yes
+
+- hosts: master
+  gather_facts: no
+  tasks:
+
+    - name: Install firewall rules
+      firewalld:
+        state: enabled
+        port: '{{ item }}'
+        permanent: yes
+        immediate: yes
+      with_items:
+        - '6443/tcp'  # Kubernetes API server
+        - '2379-2380/tcp'  # etcd server client API
+        - '10259/tcp'  # kube-scheduler
+        - '10257/tcp'  # kube-controller manager
+      become: yes
