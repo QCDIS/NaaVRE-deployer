@@ -8,15 +8,6 @@
         state: restarted
       become: yes
 
-    - name: Assign network interface to firewall zone
-      firewalld:
-        zone: public
-        interface: '{{ internal_network_interface }}'
-        state: enabled
-        permanent: true
-        immediate: yes
-      become: yes
-
     - name: Install firewall rules
       firewalld:
         state: enabled
@@ -24,11 +15,18 @@
         permanent: yes
         immediate: yes
       with_items:
-        #- '8080/tcp'
-        #- '10248-10255/tcp'
+        - '8285/udp'  # Flannel
         - '8472/udp'  # VXLAN backend for Flannel
         - '10250/tcp'  # Kubelet API
         - '30000-32767/tcp'  # NodePort Services
+      become: yes
+
+    - name: Enable firewall masquerading
+      firewalld:
+        state: enabled
+        masquerade: true
+        permanent: true
+        immediate: true
       become: yes
 
 - hosts: master
@@ -44,6 +42,6 @@
       with_items:
         - '6443/tcp'  # Kubernetes API server
         - '2379-2380/tcp'  # etcd server client API
-        - '10259/tcp'  # kube-scheduler
-        - '10257/tcp'  # kube-controller manager
+        - '10251/tcp'  # kube-scheduler
+        - '10252/tcp'  # kube-controller manager
       become: yes
