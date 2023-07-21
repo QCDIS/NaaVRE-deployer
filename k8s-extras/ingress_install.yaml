@@ -35,6 +35,7 @@
                 tcp:
                   "8080": 32808
               type: NodePort
+              externalTrafficPolicy: Local
             extraArgs:
               default-ssl-certificate: "ingress-nginx/ingress-self-signed-tls"
           ingressClassResource:
