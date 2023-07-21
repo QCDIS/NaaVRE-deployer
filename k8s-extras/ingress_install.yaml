@@ -27,6 +27,7 @@
         name: ingress-nginx
         values:
           controller:
+            kind: DaemonSet
             service:
               nodePorts:
                 http: 32080
