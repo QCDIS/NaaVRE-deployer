@@ -24,10 +24,10 @@
         create_namespace: true
         chart_repo_url: https://kubernetes.github.io/ingress-nginx
         chart_ref: ingress-nginx
+        chart_version: v4.7.1
         name: ingress-nginx
         values:
           controller:
-            kind: DaemonSet
             service:
               nodePorts:
                 http: 32080
@@ -35,7 +35,6 @@
                 tcp:
                   "8080": 32808
               type: NodePort
-              externalTrafficPolicy: Local
             extraArgs:
               default-ssl-certificate: "ingress-nginx/ingress-self-signed-tls"
           ingressClassResource:

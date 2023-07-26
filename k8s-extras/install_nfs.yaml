@@ -9,7 +9,7 @@
       become: yes
 
     - name: Get private IP
-      shell: 'ip addr | grep -Po "(?<=inet )((\d+\.){3}\d+)(?=/\d+ .*{{ internal_network_interface }})"'
+      shell: ip route get 1.1.1.1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p'
       register: private_ip
 
     - name: Store private IP
@@ -43,16 +43,6 @@
       package:
         state: present
         name: nfs-kernel-server
-      become: yes
-
-    - name: Install firewall rules
-      firewalld:
-        state: enabled
-        port: '{{ item }}'
-        permanent: yes
-        immediate: yes
-      with_items:
-        - '2049/tcp'
       become: yes
 
     - name: Install NFS provisioner with Helm
