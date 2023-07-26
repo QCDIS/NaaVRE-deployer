@@ -1,6 +1,0 @@
-{
-  "exec-opts":[
-    "native.cgroupdriver=systemd"
-  ],
-  "data-root": "/data/docker"
-}

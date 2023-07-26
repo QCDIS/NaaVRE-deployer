@@ -3,16 +3,6 @@
   gather_facts: no
   tasks:
 
-    - name: Remove old docker packages
-      package:
-        state: absent
-        name:
-          - docker
-          - docker-engine
-          - docker.io
-          - containerd
-          - runc
-
     - name: Add Docker GPG key
       get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -23,47 +13,37 @@
       shell: 'echo $(lsb_release -cs)'
       register: dist
 
+    - name: Get arch
+      shell: dpkg --print-architecture
+      register: arch
+
     - name: Add Docker Repository
       apt_repository:
-        repo: 'deb https://download.docker.com/linux/ubuntu {{ dist.stdout }} stable'
+        repo: 'deb [arch={{ arch.stdout }}] https://download.docker.com/linux/ubuntu {{ dist.stdout }} stable'
         state: present
+      register: repo
 
     - name: Update apt cache
       apt:
         update_cache: yes
+      when: repo.changed
 
-    - name: Run dpkg configure
-      shell: 'dpkg --configure -a'
-
-    - name: Install docker packages
+    - name: Install containerd
       package:
         state: present
         name:
-          - docker-ce
-          - docker-ce-cli
           - containerd.io
+      register: install
 
-    - name: Reset containerd configuration
+    - name: Configure containerd
       shell: |
         containerd config default > /etc/containerd/config.toml
         sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
-
-    - name: Create data directory
-      file:
-        state: directory
-        path: /data/docker
-
-    - name: Copy docker daemon.json
-      copy:
-        src: '{{ playbook_dir }}/config/docker_daemon.json'
-        dest: /etc/docker/daemon.json
+      when: install.changed
 
     - name: Restart containerd
       service:
         name: containerd
+        enabled: true
         state: restarted
-
-    - name: Restart docker
-      service:
-        name: docker
-        state: restarted
+      when: install.changed

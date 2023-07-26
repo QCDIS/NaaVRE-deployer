@@ -1,0 +1,19 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+
+    - name: Install dependencies
+      package:
+        state: present
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - git
+          - gnupg2
+          - jq
+          - python3
+          - software-properties-common
+          - vim
+          - wget

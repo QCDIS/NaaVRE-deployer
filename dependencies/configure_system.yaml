@@ -1,0 +1,30 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+
+    - name: Disable swap
+      shell: |
+        swapoff -a
+        sed -i 's%^/swap.img%# /swap.img%' /etc/fstab
+        mount -a
+
+    - name: Enable kernel modules
+      modprobe:
+        name: '{{ item }}'
+        state: present
+        persistent: present
+      with_items:
+        - overlay
+        - br_netfilter
+
+    - name: Set sysctl net params
+      sysctl:
+        name: '{{ item }}'
+        value: 1
+        state: present
+        reload: yes
+      with_items:
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.bridge.bridge-nf-call-iptables
+        - net.ipv4.ip_forward

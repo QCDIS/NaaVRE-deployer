@@ -13,14 +13,26 @@
       apt_repository:
         repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
         state: present
+      register: repo
 
     - name: Update apt cache
       apt:
         update_cache: yes
+      when: repo.changed
 
-    - name: Install Kubernetes
-      apt:
-        pkg:
+    - name: Install kube
+      package:
+        state: present
+        name:
           - kubelet=1.27.3-00
           - kubeadm=1.27.3-00
           - kubectl=1.27.3-00
+
+    - name: Hold kubeadm
+      dpkg_selections:
+        name: '{{ item }}'
+        selection: hold
+      with_items:
+        - kubelet
+        - kubeadm
+        - kubectl

@@ -1,4 +1,0 @@
-- import_playbook: utils_install.yaml
-- import_playbook: docker_install.yaml
-- import_playbook: kube_install.yaml
-- import_playbook: helm_install.yaml

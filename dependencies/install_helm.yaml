@@ -17,12 +17,15 @@
       apt_repository:
         repo: 'deb [arch={{ arch.stdout }}] https://baltocdn.com/helm/stable/debian/ all main'
         state: present
+      register: repo
 
     - name: Update apt cache
       apt:
         update_cache: yes
+      when: repo.changed
 
     - name: Install Helm
-      apt:
-        pkg:
+      package:
+        state: present
+        name:
           - helm
