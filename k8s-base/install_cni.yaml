@@ -19,8 +19,3 @@
         name: flannel
         values:
           podCidr: "{{ pod_network_cidr }}"
-          flannel:
-            args:
-              - "--ip-masq"
-              - "--kube-subnet-mgr"
-              - "--iface={{ internal_network_interface }}"

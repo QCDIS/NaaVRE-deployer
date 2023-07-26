@@ -1,21 +1,15 @@
-- hosts: master
+- hosts: all
   gather_facts: no
   tasks:
 
-    - name: Remove Flannel with Helm
-      kubernetes.core.helm:
-        namespace: kube-flannel
-        name: flannel
-        state: absent
-      ignore_errors: yes
+    - name: Reset kubeadm
+      shell: kubeadm reset -f
+      become: yes
 
-    - name: Delete Flannel namespace
-      k8s:
-        kind: Namespace
-        name: kube-flannel
+    - name: Remove kube config
+      file:
         state: absent
-        wait: true
-      ignore_errors: yes
+        path: '/home/{{ ansible_ssh_user }}/.kube/config'
 
     - name: Remove Flannel config
       file:

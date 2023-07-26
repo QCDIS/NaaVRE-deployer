@@ -1,3 +1,0 @@
-- import_playbook: cni_reset.yaml
-- import_playbook: kube_reset.yaml
-- import_playbook: firewall_reset.yaml
