@@ -1,5 +1,6 @@
 - import_playbook: upgrade_system.yaml
 - import_playbook: install_prerequisites.yaml
+- import_playbook: configure_firewall.yaml
 - import_playbook: install_kube.yaml
 - import_playbook: configure_system.yaml
 - import_playbook: install_cri.yaml

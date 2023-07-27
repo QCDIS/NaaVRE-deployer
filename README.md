@@ -9,9 +9,11 @@
 ## Steps
 
 - Install basic system dependencies [dependencies/install.yaml](dependencies/install_all.yaml):
+  - configure firewall
   - container runtime interface (containerd)
   - kubelet, kubeadm, kubectl
   - helm
+  - configure system for k8s
 - Install basic k8s cluster [k8s-base/install.yaml](k8s-base/install_all.yaml):
   - setup master node
   - enroll worker nodes
