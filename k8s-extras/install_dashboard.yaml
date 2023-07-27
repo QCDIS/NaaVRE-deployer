@@ -15,6 +15,7 @@
         values:
           service:
             type: NodePort
+            nodePort: 32494
 
     - name: Create ServiceAccount
       k8s:
