@@ -7,14 +7,13 @@
       register: join_cmd
 
     - name: Save join cmd
-      add_host:
-        name: join_cmd_holder
-        cmd: '{{ join_cmd.stdout }}'
+      set_fact:
+        join_cmd: "{{ join_cmd.stdout }}"
 
 - hosts: workers
   gather_facts: no
   tasks:
 
     - name: Join cluster
-      shell: "{{ hostvars['join_cmd_holder']['cmd'] }}"
+      shell: "{{ hostvars[groups['master'][0]]['join_cmd'] }}"
       become: yes
