@@ -1,0 +1,59 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Reset firewall
+      ufw:
+        state: reset
+      become: yes
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+      become: yes
+
+    - name: Enable firewall
+      ufw:
+        state: enabled
+      become: yes
+
+    - name: Get private IP
+      shell: ip route get 1.1.1.1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p'
+      register: private_ip
+    - name: Store private IP
+      set_fact:
+        private_ip: "{{ private_ip.stdout }}"
+
+    - name: Allow all traffic from k8s nodes
+      ufw:
+        rule: allow
+        src: '{{ hostvars[item].private_ip }}'
+        comment: '{{ hostvars[item].inventory_hostname }}'
+      with_items: '{{ groups["all"] }}'
+      become: yes
+
+    - name: Allow all traffic from k8s pods
+      ufw:
+        rule: allow
+        src: '{{ pod_network_cidr }}'
+        comment: 'K8s pods'
+      become: yes
+
+    - name: Allow specific ports from anywhere
+      ufw:
+        rule: allow
+        port: '{{ item.port }}'
+        proto: '{{ item.proto }}'
+        comment: '{{ item.comment }}'
+      with_items:
+        - port: 80
+          proto: tcp
+          comment: http
+        - port: 443
+          proto: tcp
+          comment: https
+        - port: '30000:32767'
+          proto: tcp
+          comment: NodePort services
+      become: yes
