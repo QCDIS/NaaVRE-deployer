@@ -1,0 +1,17 @@
+- name: 'User {{ state }}'
+  user:
+    name: '{{ username }}'
+    shell: /bin/bash
+    state: '{{ state }}'
+  become: yes
+
+- name: 'SSH key {{ state }}'
+  lineinfile:
+    path: '/home/{{ username }}/.ssh/authorized_keys'
+    line: '{{ public_ssh_key }}'
+    create: yes
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    state: '{{ state }}'
+  become: yes
+  when: (state == 'present')

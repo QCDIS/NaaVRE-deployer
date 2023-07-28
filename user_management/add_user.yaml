@@ -1,0 +1,28 @@
+- hosts: master
+  gather_facts: false
+  vars_prompt:
+
+    - name: username
+      prompt: Username
+      private: false
+
+    - name: public_ssh_key
+      prompt: Public ssh key
+      private: false
+
+  tasks:
+
+    - name: Create system user
+      include_tasks: tasks/system_user.yaml
+      vars:
+        state: present
+
+    - name: Create dashboard user
+      include_tasks: tasks/dashboard_user.yaml
+      vars:
+        state: present
+
+    - name: Create kubectl user
+      include_tasks: tasks/kubectl_user.yaml
+      vars:
+        state: present

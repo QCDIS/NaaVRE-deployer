@@ -1,0 +1,47 @@
+- name: Add/delete ServiceAccount
+  k8s:
+    namespace: kubernetes-dashboard
+    kind: ServiceAccount
+    name: '{{ username }}'
+    state: '{{ state }}'
+
+- name: Add/delete ClusterRoleBinding
+  k8s:
+    kind: ClusterRoleBinding
+    name: '{{ username }}'
+    definition:
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: User
+          name: '{{ username }}'
+        - apiGroup: rbac.authorization.k8s.io
+          kind: Group
+          name: system:serviceaccounts
+    state: '{{ state }}'
+
+- set_fact:
+    token_file: '/home/{{ username }}/dashboard_token.txt'
+
+- name: Create token
+  when: (state == "present")
+  block:
+    - shell: 'kubectl -n kubernetes-dashboard create token {{ username }} --duration 4380h -o jsonpath="{.status.token}"'
+      register: token
+    - copy:
+        content: '{{ token.stdout }}'
+        dest: '{{ token_file }}'
+        owner: '{{ username }}'
+        group: '{{ username }}'
+        mode: '0600'
+      become: yes
+
+- name: Delete token file
+  when: (state == "absent")
+  file:
+    path: '{{ token_file }}'
+    state: absent
+  become: yes

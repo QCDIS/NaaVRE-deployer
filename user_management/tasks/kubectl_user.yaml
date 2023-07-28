@@ -1,0 +1,43 @@
+- set_fact:
+    k8s_namespace: 'n-a-a-vre'
+    k8s_ca_dir: '/etc/kubernetes/pki'
+    user_ca_dir: '/home/{{username}}/.certs'
+    user_kubeconfig: '/home/{{username}}/.kube/config'
+
+- name: Create user certificates
+  when: (state == "present")
+  block:
+    - file:
+        name: '{{user_ca_dir}}'
+        state: directory
+        mode: '0700'
+      become: yes
+    - shell: 'openssl genrsa -out {{user_ca_dir}}/cert.key 2048'
+      become: yes
+    - shell: 'openssl req -new -key {{user_ca_dir}}/cert.key -out {{user_ca_dir}}/cert.csr -subj "/CN={{username}}"'
+      become: yes
+    - shell: 'openssl x509 -req -in {{user_ca_dir}}/cert.csr -CA {{k8s_ca_dir}}/ca.crt -CAkey {{k8s_ca_dir}}/ca.key -CAcreateserial -out {{user_ca_dir}}/cert.crt -days 183'
+      become: yes
+    - shell: 'chown {{username}}:{{username}} -R {{user_ca_dir}}'
+      become: yes
+
+- name: Create user kubeconfig
+  when: (state == "present")
+  block:
+    - file:
+        name: '/home/{{username}}/.kube'
+        state: directory
+        mode: '0700'
+      become: yes
+    - shell: kubectl config view -o jsonpath='{.clusters[0].cluster.server}'
+      register: kubernetes_server
+    - shell: 'kubectl --kubeconfig={{user_kubeconfig}} config set-cluster kubernetes --server={{kubernetes_server.stdout}} --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true'
+      become: yes
+    - shell: 'kubectl --kubeconfig={{user_kubeconfig}} config set-credentials {{username}} --client-certificate={{user_ca_dir}}/cert.crt --client-key={{user_ca_dir}}/cert.key --embed-certs=true'
+      become: yes
+    - shell: 'kubectl --kubeconfig={{user_kubeconfig}} config set-context {{username}}-context --cluster kubernetes --user {{username}}'
+      become: yes
+    - shell: 'kubectl --kubeconfig={{user_kubeconfig}} config use-context {{username}}-context'
+      become: yes
+    - shell: 'chown {{username}}:{{username}} -R /home/{{username}}/.kube'
+      become: yes
