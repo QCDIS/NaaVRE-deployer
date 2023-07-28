@@ -1,5 +1,4 @@
 - set_fact:
-    k8s_namespace: 'n-a-a-vre'
     k8s_ca_dir: '/etc/kubernetes/pki'
     user_ca_dir: '/home/{{username}}/.certs'
     user_kubeconfig: '/home/{{username}}/.kube/config'
