@@ -15,12 +15,9 @@
         kind: ClusterRole
         name: cluster-admin
       subjects:
-        - apiGroup: rbac.authorization.k8s.io
-          kind: User
+        - kind: ServiceAccount
           name: '{{ username }}'
-        - apiGroup: rbac.authorization.k8s.io
-          kind: Group
-          name: system:serviceaccounts
+          namespace: kubernetes-dashboard
     state: '{{ state }}'
 
 - set_fact:
