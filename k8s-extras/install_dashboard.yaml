@@ -39,12 +39,9 @@
             kind: ClusterRole
             name: cluster-admin
           subjects:
-            - apiGroup: rbac.authorization.k8s.io
-              kind: User
+            - kind: ServiceAccount
               name: admin-user
-            - apiGroup: rbac.authorization.k8s.io
-              kind: Group
-              name: system:serviceaccounts
+              namespace: kubernetes-dashboard
 
     - name: Get dashboard token
       shell: kubectl -n kubernetes-dashboard create token admin-user --duration 8760h -o yaml | tee dashboard_token.yaml
