@@ -35,11 +35,34 @@
           - containerd.io
       register: install
 
-    - name: Configure containerd
+    - name: Generate default containerd configuration
       shell: |
         containerd config default > /etc/containerd/config.toml
-        sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
       when: install.changed
+
+    - name: Configure containerd
+      lineinfile:
+        path: /etc/containerd/config.toml
+        line: '{{ item.line }}'
+        regexp: '{{ item.regexp }}'
+        backrefs: true
+      with_items:
+        - line: '\1SystemdCgroup = true'
+          regexp: '^(\s*)SystemdCgroup = (true|false)$'
+      when: install.changed
+
+    - name: Configure containerd volumes
+      lineinfile:
+        path: /etc/containerd/config.toml
+        line: '{{ item.line }}'
+        regexp: '{{ item.regexp }}'
+        backrefs: true
+      with_items:
+        - line: '\1root = "{{ runtime_path }}/containerd_root"'
+          regexp: '^(\s*)root = ".*"$'
+        - line: '\1state = "{{ runtime_path }}/containerd_state"'
+          regexp: '^(\s*)state = ".*"$'
+      when: 'install.changed and (runtime_path | default("", true) | trim != "")'
 
     - name: Restart containerd
       service:
