@@ -1,9 +1,13 @@
-- hosts: master
+- hosts: masters[0]
   gather_facts: no
   tasks:
 
     - name: kubeadm init
-      shell: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+      shell: |
+        kubeadm init \
+          --pod-network-cidr={{ pod_network_cidr }} \
+          --control-plane-endpoint "{{ ha.vip_hostname }}:{{ ha.port_dest }}" \
+          --upload-certs
       become: yes
 
     - name: Create .kube directory

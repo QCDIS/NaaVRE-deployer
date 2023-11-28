@@ -5,10 +5,26 @@ all:
     # Path used for runtime data (e.g. containerd)
     # Leave empty to use the default values
     runtime_path:
+    # High availability setup (triggered when hosts contains more than one item)
+    # We use stacked control plane and etcd nodes with keepalived and haproxy running as static pods
+    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+    # https://github.com/kubernetes/kubeadm/blob/main/docs/ha-considerations.md
+    ha:
+      network_interface: ens3
+      password: my_passw
+      # Virtual IP negotiated between the control plane nodes. Must belong to the same subnet as the nodes themselves.
+      vip: 10.0.x.x
+      # Domain name attributed to the virtual IP. This will be set to resolve to 'vip' in /etc/hosts, and used when
+      # configuring the k8s cluster, allowing to migrate VMs to another subnet without reconfiguring k8s.
+      vip_hostname: kubeapi.vlic01
+      # Port through which nodes contact the kube API
+      port_dest: 7443
+      # Port over which the kube API is exposed. Forwarding from 'port_dest' to 'port_src' is done by HAProxy.
+      port_src: 6443
 
   children:
 
-    master:
+    masters:
       hosts:
         host1:
 

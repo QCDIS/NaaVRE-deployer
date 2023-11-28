@@ -1,0 +1,41 @@
+- hosts: masters
+  gather_facts: no
+  tasks:
+
+    - name: Create HA directories
+      file:
+        path: '{{ item }}'
+        state: directory
+      become: yes
+      with_items:
+        - /etc/keepalived
+        - /etc/haproxy
+        - /etc/kubernetes/manifests
+
+    - name: Copy HA configuration
+      template:
+        src: './templates/{{ item }}.j2'
+        dest: '/{{ item }}'
+      become: yes
+      with_items:
+        - etc/keepalived/keepalived.conf
+        - etc/keepalived/check_apiserver.sh
+        - etc/haproxy/haproxy.cfg
+        - etc/kubernetes/manifests/keepalived.yaml
+        - etc/kubernetes/manifests/haproxy.yaml
+
+    - name: Set permissions
+      file:
+        path: /etc/keepalived/check_apiserver.sh
+        mode: 755
+      become: yes
+
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Add HA hostname
+      lineinfile:
+        path: /etc/hosts
+        line: '{{ ha.vip }} {{ ha.vip_hostname }}  # kube API virtual IP'
+        regexp: '\S+\s+\S+\s+# kube API virtual IP'
+      become: yes

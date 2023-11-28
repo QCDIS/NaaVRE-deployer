@@ -16,7 +16,7 @@
       set_fact:
         private_ip: "{{ private_ip.stdout }}"
 
-- hosts: master
+- hosts: masters[0]
   gather_facts: false
   tasks:
 
@@ -54,7 +54,7 @@
         name: nfs-provisioner
         values:
           nfs:
-            server: '{{ hostvars[groups["master"][0]].private_ip }}'
+            server: '{{ hostvars[groups["masters"][0]].private_ip }}'
             path: /data/nfs-data
           storageClass:
             name: nfs

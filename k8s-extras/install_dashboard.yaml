@@ -1,4 +1,4 @@
-- hosts: master
+- hosts: masters[0]
   gather_facts: false
   vars:
     chart_version: v6.0.8

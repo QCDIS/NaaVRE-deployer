@@ -15,7 +15,7 @@
   - helm
   - configure system for k8s
 - Install basic k8s cluster [k8s-base/install.yaml](k8s-base/install_all.yaml):
-  - setup master node
+  - setup master nodes
   - enroll worker nodes
   - container network interface (Flannel)
 - Install k8s extras [k8s-extras/install.yaml](k8s-extras/install_all.yaml):

@@ -1,0 +1,38 @@
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+
+    - name: Retrieve control-plane certs
+      shell: kubeadm init phase upload-certs --upload-certs | tail -n1
+      register: control_certs
+      become: yes
+
+    - name: Save control-plane certs
+      set_fact:
+        control_certs: "{{ control_certs.stdout }}"
+
+    - name: Generate join cmd
+      shell: kubeadm token create --print-join-command
+      register: join_cmd
+
+    - name: Save join cmd
+      set_fact:
+        join_cmd: "{{ join_cmd.stdout }}"
+
+- hosts: masters[1:]
+  gather_facts: no
+  tasks:
+    - name: Join cluster
+      shell: |
+        {{ hostvars[groups['masters'][0]]['join_cmd'] }} \
+          --control-plane \
+          --certificate-key {{ hostvars[groups['masters'][0]]['control_certs'] }}
+      become: yes
+
+- hosts: workers
+  gather_facts: no
+  tasks:
+    - name: Join cluster
+      shell: |
+        {{ hostvars[groups['masters'][0]]['join_cmd'] }}
+      become: yes
