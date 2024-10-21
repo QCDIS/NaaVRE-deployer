@@ -59,3 +59,9 @@
           storageClass:
             name: nfs
             defaultClass: true
+
+    - name: Restart nfs-server
+      service:
+        name: nfs-server
+        enabled: true
+        state: restarted
