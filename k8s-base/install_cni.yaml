@@ -16,7 +16,9 @@
         namespace: kube-flannel
         chart_repo_url: https://flannel-io.github.io/flannel/
         chart_ref: flannel
-        chart_version: v0.22.0
+        chart_version: v0.25.5
         name: flannel
         values:
           podCidr: "{{ pod_network_cidr }}"
+          netpol:
+            enabled: true
