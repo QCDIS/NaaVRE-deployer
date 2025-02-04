@@ -24,7 +24,7 @@
         create_namespace: true
         chart_repo_url: https://kubernetes.github.io/ingress-nginx
         chart_ref: ingress-nginx
-        chart_version: v4.7.1
+        chart_version: v4.12.0
         name: ingress-nginx
         values:
           controller:
