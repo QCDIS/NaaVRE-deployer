@@ -19,5 +19,6 @@
   - enroll worker nodes
   - container network interface (Flannel)
 - Install k8s extras [k8s-extras/all.yaml](k8s-extras/all.yaml):
+  - cert-manager
   - ingress controller (ingress-nginx)
   - NFS persistent volume provisioner

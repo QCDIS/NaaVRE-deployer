@@ -1,2 +1,3 @@
+- import_playbook: cert-manager.yaml
 - import_playbook: ingress.yaml
 - import_playbook: nfs_provisioner.yaml
