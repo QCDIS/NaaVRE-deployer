@@ -5,13 +5,13 @@
 
     - name: Add Kubernetes GPG key
       get_url:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        dest: /etc/apt/trusted.gpg.d/kubernetes.asc
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        dest: /etc/apt/keyrings/kubernetes.asc
         mode: '0644'
 
     - name: Add Kubernetes repository
       apt_repository:
-        repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+        repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes.asc] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /'
         state: present
       register: repo
 
@@ -24,9 +24,9 @@
       package:
         state: present
         name:
-          - kubelet=1.27.3-1.1
-          - kubeadm=1.27.3-1.1
-          - kubectl=1.27.3-1.1
+          - kubelet
+          - kubeadm
+          - kubectl
 
     - name: Hold kubeadm
       dpkg_selections:

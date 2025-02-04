@@ -2,6 +2,6 @@
 - import_playbook: firewall.yaml
 - import_playbook: kernel.yaml
 - import_playbook: swap.yaml
-- import_playbook: kube.yaml
 - import_playbook: containerd.yaml
+- import_playbook: kube.yaml
 - import_playbook: helm.yaml
