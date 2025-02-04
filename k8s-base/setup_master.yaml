@@ -5,10 +5,18 @@
     - name: kubeadm init
       shell: |
         kubeadm init \
+          --pod-network-cidr={{ pod_network_cidr }}
+      become: yes
+      when: groups['masters'] | length == 1
+
+    - name: kubeadm init
+      shell: |
+        kubeadm init \
           --pod-network-cidr={{ pod_network_cidr }} \
           --control-plane-endpoint "{{ ha.vip_hostname }}:{{ ha.port_dest }}" \
           --upload-certs
       become: yes
+      when: groups['masters'] | length > 1
 
     - name: Create .kube directory
       file:
