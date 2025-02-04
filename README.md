@@ -8,7 +8,7 @@
 
 ## Steps
 
-- Install basic system dependencies [dependencies/install.yaml](dependencies/install_all.yaml):
+- Install basic system dependencies [dependencies/all.yaml](dependencies/all.yaml):
   - configure firewall
   - container runtime interface (containerd)
   - kubelet, kubeadm, kubectl
