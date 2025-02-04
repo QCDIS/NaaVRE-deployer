@@ -18,7 +18,7 @@
   - setup master nodes
   - enroll worker nodes
   - container network interface (Flannel)
-- Install k8s extras [k8s-extras/install.yaml](k8s-extras/install_all.yaml):
-  - persistent volume provisioner (NFS)
+- Install k8s extras [k8s-extras/all.yaml](k8s-extras/all.yaml):
   - dashboard
   - ingress controller (ingress-nginx)
+  - NFS persistent volume provisioner
