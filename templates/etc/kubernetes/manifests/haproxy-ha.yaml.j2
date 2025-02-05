@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: haproxy
+  name: haproxy-ha
   namespace: kube-system
 spec:
   containers:
@@ -21,7 +21,7 @@ spec:
   hostNetwork: true
   volumes:
     - hostPath:
-        path: /etc/haproxy/haproxy.cfg
+        path: /etc/haproxy/haproxy-ha.cfg
         type: FileOrCreate
       name: haproxyconf
 status: {}
