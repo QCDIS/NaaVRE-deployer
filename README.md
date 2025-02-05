@@ -8,7 +8,7 @@
 
 ## Steps
 
-- Install basic system dependencies [dependencies/install.yaml](dependencies/install_all.yaml):
+- Install basic system dependencies [dependencies/all.yaml](dependencies/all.yaml):
   - configure firewall
   - container runtime interface (containerd)
   - kubelet, kubeadm, kubectl
@@ -18,7 +18,7 @@
   - setup master nodes
   - enroll worker nodes
   - container network interface (Flannel)
-- Install k8s extras [k8s-extras/install.yaml](k8s-extras/install_all.yaml):
-  - persistent volume provisioner (NFS)
-  - dashboard
+- Install k8s extras [k8s-extras/all.yaml](k8s-extras/all.yaml):
+  - cert-manager
   - ingress controller (ingress-nginx)
+  - NFS persistent volume provisioner

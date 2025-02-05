@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: haproxy-ha
+  namespace: kube-system
+spec:
+  containers:
+    - image: haproxy:2.1.4
+      name: haproxy
+      livenessProbe:
+        failureThreshold: 8
+        httpGet:
+          host: localhost
+          path: /healthz
+          port: {{ ha.port_dest }}
+          scheme: HTTPS
+      volumeMounts:
+        - mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          name: haproxyconf
+          readOnly: true
+  hostNetwork: true
+  volumes:
+    - hostPath:
+        path: /etc/haproxy/haproxy-ha.cfg
+        type: FileOrCreate
+      name: haproxyconf
+status: {}

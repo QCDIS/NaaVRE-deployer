@@ -14,15 +14,15 @@
 
     - name: Copy HA configuration
       template:
-        src: './templates/{{ item }}.j2'
+        src: '../templates/{{ item }}.j2'
         dest: '/{{ item }}'
       become: yes
       with_items:
         - etc/keepalived/keepalived.conf
         - etc/keepalived/check_apiserver.sh
-        - etc/haproxy/haproxy.cfg
+        - etc/haproxy/haproxy-ha.cfg
         - etc/kubernetes/manifests/keepalived.yaml
-        - etc/kubernetes/manifests/haproxy.yaml
+        - etc/kubernetes/manifests/haproxy-ha.yaml
 
     - name: Set permissions
       file:

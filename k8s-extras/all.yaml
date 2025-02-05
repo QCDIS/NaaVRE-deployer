@@ -1,0 +1,5 @@
+- import_playbook: cert-manager.yaml
+- import_playbook: ingress.yaml
+- import_playbook: haproxy-ing.yaml
+  when: '{{ install_ingress_haproxy | default(false) }}'
+- import_playbook: nfs_provisioner.yaml

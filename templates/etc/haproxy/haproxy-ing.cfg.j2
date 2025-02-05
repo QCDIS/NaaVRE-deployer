@@ -1,0 +1,56 @@
+# /etc/haproxy/haproxy-ing.cfg
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+  log /dev/log local0
+  log /dev/log local1 notice
+  daemon
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+  mode                    http
+  log                     global
+  option                  httplog
+  option                  dontlognull
+  option http-server-close
+  option forwardfor       except 127.0.0.0/8
+  option                  redispatch
+  retries                 1
+  timeout http-request    10s
+  timeout queue           20s
+  timeout connect         5s
+  timeout client          20s
+  timeout server          20s
+  timeout http-keep-alive 10s
+  timeout check           10s
+
+frontend http
+  bind *:80
+  mode tcp
+  option tcplog
+  default_backend ingresshttp
+  monitor-uri /healthz
+
+frontend https
+  bind *:443
+  mode tcp
+  option tcplog
+  default_backend ingresshttps
+  monitor-uri /healthz
+
+backend ingresshttp
+  mode tcp
+  balance roundrobin
+  {% for hostname in groups['all'] %}
+  server {{ hostvars[hostname].inventory_hostname }} {{ hostvars[hostname]['private_ip'] }}:32080 check fall 3 rise 2
+  {% endfor %}
+
+backend ingresshttps
+  mode tcp
+  balance roundrobin
+  {% for hostname in groups['all'] %}
+  server {{ hostvars[hostname].inventory_hostname }} {{ hostvars[hostname]['private_ip'] }}:32443 check fall 3 rise 2
+  {% endfor %}

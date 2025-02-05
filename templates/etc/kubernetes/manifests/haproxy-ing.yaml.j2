@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: haproxy
+  name: haproxy-ing
   namespace: kube-system
 spec:
   containers:
@@ -12,8 +12,8 @@ spec:
         httpGet:
           host: localhost
           path: /healthz
-          port: {{ ha.port_dest }}
-          scheme: HTTPS
+          port: 80
+          scheme: HTTP
       volumeMounts:
         - mountPath: /usr/local/etc/haproxy/haproxy.cfg
           name: haproxyconf
@@ -21,7 +21,7 @@ spec:
   hostNetwork: true
   volumes:
     - hostPath:
-        path: /etc/haproxy/haproxy.cfg
+        path: /etc/haproxy/haproxy-ing.cfg
         type: FileOrCreate
       name: haproxyconf
 status: {}
