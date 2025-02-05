@@ -2,6 +2,8 @@ all:
   vars:
     ansible_ssh_user: user
     pod_network_cidr: '10.244.0.0/16'
+    # Install ingress HAProxy
+    install_ingress_haproxy: false
     # Path used for runtime data (e.g. containerd)
     # Leave empty to use the default values
     runtime_path:
