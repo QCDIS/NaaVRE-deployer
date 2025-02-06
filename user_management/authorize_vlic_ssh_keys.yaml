@@ -1,0 +1,14 @@
+- hosts: all
+  become: no
+  gather_facts: no
+  tasks:
+
+  - name: 'Authorize SSH key'
+    lineinfile:
+      path: '/home/{{ ansible_ssh_user }}/.ssh/authorized_keys'
+      line: '{{ item }}'
+      state: 'present'
+    with_items:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWBqs75i849MytgwgQcRYMcsXIki0yeYTKABH6JqoiyFBHtYlyh/EV1t6cujb9LyNR1ArgFP4J5EN4fPbtwKYvxecd0LojSPxl4wjQlfrHyg6iKUYB7hVzGqACMvgYZHrtHPfrdEmOGPplPVPpoaX2j+u0BZ0yYhrWMKjzyYZKa68yy5N18+Gq+1p83HfUDwIU9wWaUYdgEvDujqF6b8p3z6LDx9Ob+RanSMZSt+b8eZRcd+F2Oy/gieJEJ8kc152VIOv8UY1xB3hVEwVnSRGgrAsa+9PChfF6efXUGWiKf8KBlWgBOYsSTsOY4ks9zkXMnbcTdC+o7xspOkyIcWjv alogo@hermes"
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCKeTEWneXCVKIGkANq1FJRB7mdX+8GdwTFQznQajKkzmEG+FAoDiAvnXVE738G5hf2n2W5QT8xgncsQ+gWVGaNr5Exg7OOIhzYYiBvyOYEO4E7mkp4FUO1tY2sKE6cY5wJvZfR5A/p/T8C6XoR9pwikDX+wUmmTo1lSLe60kUVF0631UChcrqloTbJEdnF6vYdPdF/bjQNzL7gHJnN4LGDEZ32632wOHt8G+NfVufN7vCX0gkT7NYs+y76PcFom6X7fkSUoB+tocJsG24keryUnscSkxbuvFKu+QgbnVIhBpgtCZGis9ekeG9MZbV4LIDnJ7kIQRrcGBHlXU6x9/GEI7xAqFqwJvmBZrniNguyNL8xA+ie1kH4vsLTmh9GBlr2rLuKrXeixFVGajOVNh/fdB2Q4rQvRXZWW1JiV7KpLJUJ82jkN3ysKh1qIChV2LxcQBym+4KZGLWZi17TEzdwi6pFFA93OxDOZM5krkVjo2wcgj7F/m34lK2vidzDLh8= koen.greuell@lifewatch.eu"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID1LdZ4M3vdA9eBTTVOORJxfOzpvTRu307aXIzgWBv19 gabriel@gplw"
