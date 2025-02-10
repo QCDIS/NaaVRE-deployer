@@ -2,7 +2,7 @@
 
 ## Usage
 
-- Copy `inventories/sample.yaml` to `inventories/my_cluster.yaml` and edit it.
+- Copy `inventories/sample-k8s.yaml` to `inventories/my_cluster.yaml` and edit it.
 - Run `ansible-playbook -i inventories/my_cluster.yaml install.yaml`
 
 

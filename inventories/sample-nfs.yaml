@@ -1,0 +1,19 @@
+all:
+  vars:
+    ansible_ssh_user: ubuntu
+    nfs_export_path: /mnt/nfs-data/
+
+  children:
+
+    nfs_server:
+      hosts:
+        host1:
+
+    k8s_masters:
+      hosts:
+        host1:
+
+    k8s_workers:
+      hosts:
+        host2:
+        host3:

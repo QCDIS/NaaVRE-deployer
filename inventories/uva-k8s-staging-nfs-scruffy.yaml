@@ -1,0 +1,27 @@
+all:
+  vars:
+    ansible_ssh_user: ubuntu
+    nfs_export_path: /mnt/v00/nfs-data/
+
+  children:
+
+    nfs_server:
+      vars:
+        ansible_ssh_user: vlic
+      hosts:
+        scruffy:
+          ansible_host: 145.100.135.110
+
+    k8s_masters:
+      hosts:
+        k8s-staging-1:
+          ansible_host: 145.100.135.21
+
+    k8s_workers:
+      hosts:
+        k8s-staging-2:
+          ansible_host: 145.100.135.67
+        k8s-staging-3:
+          ansible_host: 145.100.135.94
+        k8s-staging-4:
+          ansible_host: 145.100.135.64

@@ -1,0 +1,37 @@
+- hosts: nfs_server
+  gather_facts: false
+  tasks:
+
+    - name: Reset firewall
+      ufw:
+        state: reset
+      become: yes
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        name: OpenSSH
+      become: yes
+
+    - name: Enable firewall
+      ufw:
+        state: enabled
+      become: yes
+
+    - name: Allow specific ports from anywhere
+      ufw:
+        rule: allow
+        port: '{{ item.port }}'
+        proto: '{{ item.proto }}'
+        comment: '{{ item.comment }}'
+      with_items:
+        - port: 9000
+          proto: tcp
+          comment: https-api
+        - port: 9001
+          proto: tcp
+          comment: https-ui
+        - port: 80
+          proto: tcp
+          comment: https-ui
+      become: yes

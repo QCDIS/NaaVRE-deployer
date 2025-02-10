@@ -1,0 +1,42 @@
+- hosts: k8s_masters:k8s_workers
+  gather_facts: false
+  tasks:
+
+    - name: Get IP
+      shell: ip route get 1.1.1.1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p'
+      register: ip
+
+    - name: Store IP
+      set_fact:
+        ip: "{{ ip.stdout }}"
+
+- hosts: nfs_server
+  gather_facts: false
+  tasks:
+
+    - name: Allow port from clients
+      ufw:
+        rule: allow
+        src: '{{ hostvars[item].ip }}'
+        port: 11
+        comment: 'NFS from {{ hostvars[item].inventory_hostname }}'
+      with_items: '{{ groups["k8s_masters"] + groups["k8s_workers"] }}'
+      become: yes
+
+    - name: Allow port from clients
+      ufw:
+        rule: allow
+        src: '{{ hostvars[item].ip }}'
+        port: 2049
+        comment: 'NFS from {{ hostvars[item].inventory_hostname }}'
+      with_items: '{{ groups["k8s_masters"] + groups["k8s_workers"] }}'
+      become: yes
+
+    - name: Allow port from clients
+      ufw:
+        rule: allow
+        src: '{{ hostvars[item].ip }}'
+        port: 2049
+        comment: 'NFS from {{ hostvars[item].inventory_hostname }}'
+      with_items: '{{ groups["k8s_masters"] + groups["k8s_workers"] }}'
+      become: yes
