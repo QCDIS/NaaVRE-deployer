@@ -25,3 +25,13 @@ all:
           ansible_host: 145.100.135.94
         k8s-staging-4:
           ansible_host: 145.100.135.64
+        k8s-staging-5:
+          ansible_host: 145.100.135.15
+        k8s-staging-6:
+          ansible_host: 145.100.135.78
+        k8s-staging-7:
+          ansible_host: 145.100.135.61
+        k8s-staging-8:
+          ansible_host: 145.100.135.120
+        k8s-staging-9:
+          ansible_host: 145.100.135.77
