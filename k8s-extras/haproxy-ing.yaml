@@ -1,0 +1,29 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Get private IP
+      shell: ip route get 1.1.1.1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p'
+      register: private_ip
+
+    - name: Store private IP
+      set_fact:
+        private_ip: "{{ private_ip.stdout }}"
+
+    - name: Install HAProxy ingress balancer directories
+      file:
+        path: '{{ item }}'
+        state: directory
+      become: yes
+      with_items:
+        - /etc/haproxy
+        - /etc/kubernetes/manifests
+
+    - name: Copy HAProxy ingress balancer configuration
+      template:
+        src: '../templates/{{ item }}.j2'
+        dest: '/{{ item }}'
+      become: yes
+      with_items:
+        - etc/haproxy/haproxy-ing.cfg
+        - etc/kubernetes/manifests/haproxy-ing.yaml
