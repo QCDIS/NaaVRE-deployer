@@ -1,0 +1,102 @@
+- hosts: masters[0]
+  gather_facts: false
+  tasks:
+
+    - name: Create static PVs for MinIO for public-bucket
+      kubernetes.core.k8s:
+        resource_definition:
+          apiVersion: v1
+          kind: PersistentVolume
+          metadata:
+            name: naa-vre-public
+          spec:
+            storageClassName: {{ minio-storage-class }}
+            capacity:
+              storage: 10Gi
+            accessModes:
+              - ReadWriteMany
+            claimRef:
+              namespace: default
+              name: csi-s3-naa-vre-public-bucket
+            csi:
+              driver: ru.yandex.s3.csi
+              controllerPublishSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              nodePublishSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              nodeStageSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              volumeAttributes:
+                capacity: 10Gi
+                mounter: geesefs
+                options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
+              volumeHandle: naa-vre-public
+
+    - name: Create static PV for MinIO public-bucket
+      kubernetes.core.k8s:
+        resource_definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: csi-s3-naa-vre-public-bucket
+          spec:
+            # Empty storage class disables dynamic provisioning
+            storageClassName: ""
+            accessModes:
+              - ReadWriteMany
+            resources:
+              requests:
+                storage: 10Gi
+
+
+    - name: Create static PVs for MinIO for user-bucket
+      kubernetes.core.k8s:
+        resource_definition:
+          apiVersion: v1
+          kind: PersistentVolume
+          metadata:
+            name: naa-vre-user-data
+          spec:
+            storageClassName: {{ minio-storage-class }}
+            capacity:
+              storage: 10Gi
+            accessModes:
+              - ReadWriteMany
+            claimRef:
+              namespace: default
+              name: csi-s3-naa-vre-user-data-bucket-{username}
+            csi:
+              driver: ru.yandex.s3.csi
+              controllerPublishSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              nodePublishSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              nodeStageSecretRef:
+                name: csi-s3-secret
+                namespace: csi-s3
+              volumeAttributes:
+                capacity: 10Gi
+                mounter: geesefs
+                options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
+              volumeHandle: naa-vre-user-data
+
+    - name: Create static PV for MinIO user-bucket
+      kubernetes.core.k8s:
+        resource_definition:
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: csi-s3-naa-vre-user-data-bucket-{username}
+          spec:
+            # Empty storage class disables dynamic provisioning
+            storageClassName: ""
+            accessModes:
+              - ReadWriteMany
+            resources:
+              requests:
+                storage: 10Gi

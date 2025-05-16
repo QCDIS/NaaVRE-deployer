@@ -1,0 +1,19 @@
+- hosts: masters[0]
+  gather_facts: false
+  tasks:
+
+    - name: Install cert-manager with Helm
+      kubernetes.core.helm:
+        namespace: csi-s3
+        create_namespace: true
+        chart_repo_url: https://yandex-cloud.github.io/k8s-csi-s3/charts
+        chart_ref: csi-s3
+        chart_version: v1.17.0
+        name: {{ minio-storage-class }}
+        values:
+          secret:
+            create: true
+            accessKey: {{ navre-rw-access-key }}
+            secretKey: {{ navre-rw-secret-key }}
+            endpoint: {{ minio-endpoint }}
+            region: {{ minio-region }}
