@@ -3,3 +3,7 @@
 - import_playbook: haproxy-ing.yaml
   when: '{{ install_ingress_haproxy | default(false) }}'
 - import_playbook: nfs_provisioner.yaml
+- import_playbook: k8s-extras/install-csi-s3-cs.yaml
+  when: {{ create_minio_pvs | default(false) }}
+- import_playbook: k8s-extras/create-static-pvs-from-minio.yaml
+  when: {{ create_minio_pvs | default(false) }}

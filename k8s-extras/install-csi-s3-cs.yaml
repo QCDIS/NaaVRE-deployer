@@ -1,0 +1,18 @@
+- hosts: masters[0]
+  gather_facts: false
+  tasks:
+    - name: Install csi-s3 storage class
+      kubernetes.core.helm:
+        namespace: csi-s3
+        create_namespace: true
+        chart_repo_url: https://yandex-cloud.github.io/k8s-csi-s3/charts
+        chart_ref: csi-s3
+        chart_version: v0.42.1
+        name: "{{ minio_storage_class }}"
+        values:
+          secret:
+            create: true
+            accessKey: "{{ navre_rw_access_key }}"
+            secretKey: "{{ navre_rw_secret_key }}"
+            endpoint: "{{ minio_endpoint }}"
+            region: "{{ minio_region }}"
