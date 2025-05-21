@@ -23,11 +23,13 @@
   - ingress controller (ingress-nginx)
   - NFS persistent volume provisioner
   - install the csi-s3 driver and storage class. Variables
+    - `create_minio_pvs` - If true, run the playbook 
     - `minio_storage_class` - The name of the storage class to be created
     - `navre_rw_access_key` - The access key for the MinIO bucket
     - `navre_rw_secret_key` - The secret key for the MinIO bucket
     - `minio_endpoint` - The endpoint for the MinIO service
     - `minio_region` - The region for the MinIO service
   - create static PV for the MinIO buckets. Variables
+    - `create_minio_pvs` - If true, run the playbook 
     - `minio_storage_class` - The name of the storage class created in the previous step
     
