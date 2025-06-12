@@ -23,13 +23,13 @@
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
@@ -75,13 +75,13 @@
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
