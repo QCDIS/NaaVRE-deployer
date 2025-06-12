@@ -9,6 +9,7 @@
           kind: PersistentVolume
           metadata:
             name: naa-vre-public
+            namespace: "{{ pvc_namespace }}"
           spec:
             storageClassName: "{{ minio_storage_class }}"
             capacity:
@@ -16,19 +17,19 @@
             accessModes:
               - ReadWriteMany
             claimRef:
-              namespace: default
+              namespace: "{{ pvc_namespace }}"
               name: csi-s3-naa-vre-public-bucket
             csi:
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
@@ -42,7 +43,7 @@
           kind: PersistentVolumeClaim
           metadata:
             name: csi-s3-naa-vre-public-bucket
-            namespace: default
+            namespace: "{{ pvc_namespace }}"
           spec:
             # Empty storage class disables dynamic provisioning
             storageClassName: ""
@@ -60,7 +61,7 @@
           kind: PersistentVolume
           metadata:
             name: naa-vre-user-data
-            namespace: default
+            namespace: "{{ pvc_namespace }}"
           spec:
             storageClassName: "{{ minio_storage_class }}"
             capacity:
@@ -68,19 +69,19 @@
             accessModes:
               - ReadWriteMany
             claimRef:
-              namespace: default
+              namespace: "{{ pvc_namespace }}"
               name: csi-s3-naa-vre-user-data-bucket
             csi:
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: csi-s3
+                namespace: "{{ minio_storage_class }}"
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
@@ -93,7 +94,7 @@
           apiVersion: v1
           kind: PersistentVolumeClaim
           metadata:
-            namespace: default
+            namespace: "{{ pvc_namespace }}"
             name: csi-s3-naa-vre-user-data-bucket
           spec:
             # Empty storage class disables dynamic provisioning

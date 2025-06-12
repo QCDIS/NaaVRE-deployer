@@ -30,6 +30,7 @@
     - `minio_endpoint` - The endpoint for the MinIO service
     - `minio_region` - The region for the MinIO service
   - create static PV for the MinIO buckets. Variables
+    -  `pvc_namespace`  - The namespace where the PVCs will be created. For example, if we deploy a lab in the `naavre-labs` namespace, this should be set to `naavre-labs`.
     - `create_minio_pvs` - If true, run the playbook 
     - `minio_storage_class` - The name of the storage class created in the previous step
     
