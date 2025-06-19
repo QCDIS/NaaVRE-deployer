@@ -6,7 +6,7 @@
         namespace: csi-s3
         create_namespace: true
         chart_repo_url: https://yandex-cloud.github.io/k8s-csi-s3/charts
-        chart_ref: "{{ minio_storage_class }}"
+        chart_ref: csi-s3
         chart_version: v0.42.1
         name: "{{ minio_storage_class }}"
         values:
