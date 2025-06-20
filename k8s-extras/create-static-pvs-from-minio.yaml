@@ -33,7 +33,7 @@
                 capacity: 10Gi
                 mounter: geesefs
                 options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
-              volumeHandle: naa-vre-public
+              volumeHandle: "naa-vre-public-{{ pvc_namespace }}"
 
     - name: Create static PersistentVolumeClaim for MinIO public-bucket
       kubernetes.core.k8s:
@@ -84,7 +84,7 @@
                 capacity: 10Gi
                 mounter: geesefs
                 options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
-              volumeHandle: naa-vre-user-data
+              volumeHandle: "naa-vre-user-data-{{ pvc_namespace }}"
 
     - name: Create static PersistentVolumeClaim for MinIO user-bucket
       kubernetes.core.k8s:
