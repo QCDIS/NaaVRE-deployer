@@ -2,7 +2,7 @@
   gather_facts: false
   tasks:
 
-    - name: Create static PVs for MinIO for public-bucket
+    - name: Create static PersistentVolume for MinIO for public-bucket
       kubernetes.core.k8s:
         resource_definition:
           apiVersion: v1
@@ -11,11 +11,11 @@
             name: naa-vre-public
             namespace: "{{ pvc_namespace }}"
           spec:
-            storageClassName: "{{ minio_storage_class }}"
+            storageClassName: csi-s3
             capacity:
               storage: 10Gi
             accessModes:
-              - ReadWriteMany
+              - ReadOnlyMany
             claimRef:
               namespace: "{{ pvc_namespace }}"
               name: csi-s3-naa-vre-public-bucket
@@ -23,20 +23,20 @@
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
                 options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
               volumeHandle: naa-vre-public
 
-    - name: Create static PV for MinIO public-bucket
+    - name: Create static PersistentVolumeClaim for MinIO public-bucket
       kubernetes.core.k8s:
         resource_definition:
           apiVersion: v1
@@ -48,13 +48,13 @@
             # Empty storage class disables dynamic provisioning
             storageClassName: ""
             accessModes:
-              - ReadWriteMany
+              - ReadOnlyMany
             resources:
               requests:
                 storage: 10Gi
 
 
-    - name: Create static PVs for MinIO for user-bucket
+    - name: Create static PersistentVolume for MinIO for user-bucket
       kubernetes.core.k8s:
         resource_definition:
           apiVersion: v1
@@ -63,7 +63,7 @@
             name: naa-vre-user-data
             namespace: "{{ pvc_namespace }}"
           spec:
-            storageClassName: "{{ minio_storage_class }}"
+            storageClassName: csi-s3
             capacity:
               storage: 10Gi
             accessModes:
@@ -75,20 +75,20 @@
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               nodePublishSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               nodeStageSecretRef:
                 name: csi-s3-secret
-                namespace: "{{ minio_storage_class }}"
+                namespace: csi-s3
               volumeAttributes:
                 capacity: 10Gi
                 mounter: geesefs
                 options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
               volumeHandle: naa-vre-user-data
 
-    - name: Create static PV for MinIO user-bucket
+    - name: Create static PersistentVolumeClaim for MinIO user-bucket
       kubernetes.core.k8s:
         resource_definition:
           apiVersion: v1
