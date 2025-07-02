@@ -33,4 +33,6 @@
     -  `pvc_namespace`  - The namespace where the PVCs will be created. For example, if we deploy a lab in the `naavre-labs` namespace, this should be set to `naavre-labs`.
     - `create_minio_pvs` - If true, run the playbook 
     - `minio_storage_class` - The name of the storage class created in the previous step
+    - `bucket_name` - The name of the bucket to use for the static PV
+    - `pvc_access_mode` - The access mode for the PVC. For the `naa-vre-public` bucket, this should be set to `ReadOnlyMany`. For the `naa-vre-user-data` bucket, this should be set to `ReadWriteMany`.
     
