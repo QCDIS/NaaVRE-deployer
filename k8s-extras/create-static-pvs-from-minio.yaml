@@ -8,16 +8,16 @@
           apiVersion: v1
           kind: PersistentVolume
           metadata:
-            name: "naa-vre-public-{{ pvc_namespace }}"
+            name: "{{ bucket_name }}-{{ pvc_namespace }}"
           spec:
             storageClassName: "{{ minio_storage_class }}"
             capacity:
               storage: 10Gi
             accessModes:
-              - ReadOnlyMany
+              - "{{ pvc_access_mode }}"
             claimRef:
               namespace: "{{ pvc_namespace }}"
-              name: "csi-s3-naa-vre-public-bucket-{{ pvc_namespace }}"
+              name: "{{ bucket_name }}-pvc"
             csi:
               driver: ru.yandex.s3.csi
               controllerPublishSecretRef:
@@ -33,7 +33,7 @@
                 capacity: 10Gi
                 mounter: geesefs
                 options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
-              volumeHandle: "naa-vre-public-{{ pvc_namespace }}"
+              volumeHandle: "{{ bucket_name }}"
 
     - name: Create static PersistentVolumeClaim for MinIO public-bucket
       kubernetes.core.k8s:
@@ -41,64 +41,92 @@
           apiVersion: v1
           kind: PersistentVolumeClaim
           metadata:
-            name: "csi-s3-naa-vre-public-bucket-{{ pvc_namespace }}"
+            name: "{{ bucket_name }}-pvc"
             namespace: "{{ pvc_namespace }}"
           spec:
             # Empty storage class disables dynamic provisioning
             storageClassName: ""
             accessModes:
-              - ReadOnlyMany
+              - "{{ pvc_access_mode }}"
             resources:
               requests:
                 storage: 10Gi
 
+    - name: Check if PersistentVolumeClaim is created
+      kubernetes.core.k8s_info:
+        kind: PersistentVolumeClaim
+        name: "{{ bucket_name }}-pvc"
+        namespace: "{{ pvc_namespace }}"
+      register: pvc_info
 
-    - name: Create static PersistentVolume for MinIO for user-bucket
+    - name: Fail if PersistentVolumeClaim not found
+      ansible.builtin.fail:
+        msg: "PersistentVolumeClaim {{ bucket_name }}-pvc  not found"
+      when: pvc_info.resources | length == 0
+
+    - name: Check if PersistentVolume is created
+      kubernetes.core.k8s_info:
+        kind: PersistentVolume
+        name: "{{ bucket_name }}"
+      register: pv_info
+
+    - name: Fail if PersistentVolume not found
+      ansible.builtin.fail:
+        msg: "PersistentVolume {{ bucket_name }}  not found"
+      when: pv_info.resources | length == 0
+
+    - name: Create pod to test pv
       kubernetes.core.k8s:
-        resource_definition:
-          apiVersion: v1
-          kind: PersistentVolume
-          metadata:
-            name: "naa-vre-user-data-{{ pvc_namespace }}"
-          spec:
-            storageClassName: "{{ minio_storage_class }}"
-            capacity:
-              storage: 10Gi
-            accessModes:
-              - ReadWriteMany
-            claimRef:
+          resource_definition:
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: csi-s3-test-nginx
               namespace: "{{ pvc_namespace }}"
-              name: "csi-s3-naa-vre-user-data-bucket-{{ pvc_namespace }}"
-            csi:
-              driver: ru.yandex.s3.csi
-              controllerPublishSecretRef:
-                name: csi-s3-secret
-                namespace: csi-s3
-              nodePublishSecretRef:
-                name: csi-s3-secret
-                namespace: csi-s3
-              nodeStageSecretRef:
-                name: csi-s3-secret
-                namespace: csi-s3
-              volumeAttributes:
-                capacity: 10Gi
-                mounter: geesefs
-                options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
-              volumeHandle: "naa-vre-user-data-{{ pvc_namespace }}"
+            spec:
+              containers:
+               - name: csi-s3-test-nginx
+                 image: nginx
+                 volumeMounts:
+                   - mountPath: /usr/share/nginx/html/s3
+                     name: webroot
+              volumes:
+               - name: webroot
+                 persistentVolumeClaim:
+                   claimName: "{{ bucket_name }}-pvc"
+                   readOnly: true
 
-    - name: Create static PersistentVolumeClaim for MinIO user-bucket
+    - name: Wait for pod to be ready
+      kubernetes.core.k8s_info:
+        kind: Pod
+        name: csi-s3-test-nginx
+        namespace: "{{ pvc_namespace }}"
+      register: pod_info
+      until: pod_info.resources[0].status.phase == 'Running'
+      retries: 10
+      delay: 5
+
+    - name: Fail if pod is not running
+      ansible.builtin.fail:
+        msg: "Pod csi-s3-test-nginx is not running"
+      when: pod_info.resources[0].status.phase != 'Running'
+
+    - name: Check that the bucket is mounted
+      ansible.builtin.command: "kubectl exec -it csi-s3-test-nginx -n {{ pvc_namespace }}  -- /bin/bash -c mount | grep fuse"
+      register: bucket_check
+
+    - name: Show bucket mount
+      ansible.builtin.debug:
+        msg: "Bucket mount info: {{ bucket_check.stdout }}"
+
+    - name: Delete pod csi-s3-test-nginx
       kubernetes.core.k8s:
-        resource_definition:
-          apiVersion: v1
-          kind: PersistentVolumeClaim
-          metadata:
-            namespace: "{{ pvc_namespace }}"
-            name: "csi-s3-naa-vre-user-data-bucket-{{ pvc_namespace }}"
-          spec:
-            # Empty storage class disables dynamic provisioning
-            storageClassName: ""
-            accessModes:
-              - ReadWriteMany
-            resources:
-              requests:
-                storage: 10Gi
+        state: absent
+        kind: Pod
+        name: csi-s3-test-nginx
+        namespace: "{{ pvc_namespace }}"
+
+    - name: Fail if bucket_check dose not contain 'fuse.geesefs'
+      ansible.builtin.fail:
+        msg: "Bucket is not mounted in pod csi-s3-test-nginx"
+      when: bucket_check.stdout.find('type fuse.geesefs') == -1

@@ -16,3 +16,15 @@
             secretKey: "{{ navre_rw_secret_key }}"
             endpoint: "{{ minio_endpoint }}"
             region: "{{ minio_region }}"
+
+    - name: Check if csi-s3 storage class is installed
+      kubernetes.core.k8s_info:
+        kind: StorageClass
+        name: "{{ minio_storage_class }}"
+      register: storage_class_info
+
+    - name: Fail if sc not found
+      ansible.builtin.fail:
+        msg: "Storage class {{ minio_storage_class }} not found"
+      when: storage_class_info.resources | length == 0
+
