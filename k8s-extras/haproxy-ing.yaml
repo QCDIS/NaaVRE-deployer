@@ -27,3 +27,12 @@
       with_items:
         - etc/haproxy/haproxy-ing.cfg
         - etc/kubernetes/manifests/haproxy-ing.yaml
+      register: copy_configuration
+
+    - name: Reload HAProxy ingress static pods
+      shell: |
+        mv /etc/kubernetes/manifests/haproxy-ing.yaml /tmp
+        sleep 5
+        mv /tmp/haproxy-ing.yaml /etc/kubernetes/manifests/
+      become: yes
+      when: copy_configuration.results[0].changed and not copy_configuration.results[1].changed
