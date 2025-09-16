@@ -77,3 +77,4 @@
           storageClass:
             name: nfs
             defaultClass: true
+            archiveOnDelete: false
